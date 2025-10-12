@@ -4,6 +4,7 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const path = require('path');
 
 // Routers
 const postRouter = require('./router/post.router');
@@ -15,11 +16,12 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: process.env.CLIENT_URL,
     credentials: true
 }));
 
 // origin: process.env.CLIENT,
+app.use(express.static(path.join(__dirname, "dist")));
 
 
 app.use(cookieParser());
