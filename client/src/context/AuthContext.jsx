@@ -22,11 +22,15 @@ export const AuthProivder = ({ children }) => {
                 credentials: 'include'
             });
 
+            console.log(res)
+
             const result = await res.json();
 
             if(!res.ok) {
                 throw new Error(result.message);
             }
+
+            console.log(result)
 
             setUser(result);
 

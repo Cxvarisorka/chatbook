@@ -27,13 +27,13 @@ app.use(express.static(path.join(__dirname, "dist")));
 app.use(cookieParser());
 app.use(express.json());
 
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === 'dev') {
     app.use(morgan('dev'));
 }
 
 // Using routers
 app.use('/api/posts', postRouter);
-app.use('/api/auth', authRouter)
+app.use('/api/auth', authRouter);
 
 // next with value you mean calling error handler
 // Error handler middleware

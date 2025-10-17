@@ -8,7 +8,7 @@ const sendErrorDev = (err, res) => {
 }
 
 const sendErrorProd = (err, res) => {
-    return res.json({
+    return res.status(err.statusCode).json({
         message: err.message,
         statusCode: err.statusCode
     })
