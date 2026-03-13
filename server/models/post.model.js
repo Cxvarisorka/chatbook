@@ -14,6 +14,8 @@ const postSchema = new mongoose.Schema(
         },
 
         profilePhoto: String,
+        
+        postImage: String,
 
         title: {
             type: String,

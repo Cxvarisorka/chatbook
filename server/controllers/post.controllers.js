@@ -41,7 +41,6 @@ const getPosts = async (req, res) => {
         }
     });  
 };
-// Rejected promises
 
 const getPost = catchAsync(async (req, res, next) => {
     const post = await Post.findById(req.params.id);
@@ -61,7 +60,8 @@ const createPost = catchAsync(async (req, res) => {
         fullname: req.user.fullname,
         title,
         content,
-        tags
+        tags,
+        postImage: req.file ? req.file.path : undefined
     });
 
     res.status(201).json(newPost);

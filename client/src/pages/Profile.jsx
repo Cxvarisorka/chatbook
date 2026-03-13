@@ -9,13 +9,14 @@ const Profile = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        const formObj = {
-            title: e.target.title.value,
-            content: e.target.content.value,
-            userId: user._id
-        };
+        const formData = new FormData();
+        formData.append("title", e.target.title.value);
+        formData.append("content", e.target.content.value);
+        formData.append("postImg", e.target.postImg.files[0]);
 
-        addPost(formObj);
+        addPost(formData);
+
+        e.target.reset();
     }
 
     return (
@@ -37,9 +38,10 @@ const Profile = () => {
             <section>
                 <h2>Add Posts</h2>
 
-                <form onSubmit={handleSubmit}>
+                <form encType="multipart/form-data" onSubmit={handleSubmit}>
                     <input type="text" name="title" placeholder="Title" required/>
                     <input type="text" name="content" placeholder="Content" required/>
+                    <input type="file" name="postImg"/>
                     <button>Submit</button>
                 </form>
             </section>

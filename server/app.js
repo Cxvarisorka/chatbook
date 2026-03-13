@@ -5,6 +5,15 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const path = require('path');
+const dns = require('dns/promises');
+
+dns.setServers(['8.8.8.8', '8.8.4.4']);
+
+// Secuirty middlewares
+const helmet = require('helmet');
+const mongoSanitizer = require('express-mongo-sanitize');
+// const xss = require('xss');
+const rateLimit = require('express-rate-limit');
 
 // Routers
 const postRouter = require('./router/post.router');
@@ -20,8 +29,23 @@ app.use(cors({
     credentials: true
 }));
 
+app.use(rateLimit({
+    windowMs: 60 * 60 * 1000,
+    max: 100,
+    message: 'Too many requests from this IP, please try again after an hour'
+}));
+// app.use(helmet());
+// app.use(mongoSanitizer());
+// app.use(xss());
+
+
+
 // origin: process.env.CLIENT,
-app.use(express.static(path.join(__dirname, "dist")));
+// app.use(express.static(path.join(__dirname, "dist")));
+app.use('/images', (req, res, next) => {
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    next();
+}, express.static(path.join(__dirname, 'images')));
 
 
 app.use(cookieParser());

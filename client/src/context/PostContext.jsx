@@ -35,10 +35,7 @@ export const PostProvider = ({ children }) => {
         try {
             const res = await fetch(`${API_URL}/posts`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(postObj),
+                body: postObj,
                 credentials: 'include'
             });
 

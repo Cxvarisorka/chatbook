@@ -47,77 +47,77 @@ const signup = catchAsync(async (req, res, next) => {
         fullname
     });
 
-    const code = newUser.createVerificationCode();
-    await newUser.save({ validateBeforeSave: false });
+    // const code = newUser.createVerificationCode();
+    // await newUser.save({ validateBeforeSave: false });
     
-    const url = `${req.protocol}://${req.get("host")}/api/auth/verify/${code}`;
+    // const url = `${req.protocol}://${req.get("host")}/api/auth/verify/${code}`;
 
-    const html = `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-        <meta charset="UTF-8">
-        <title>Email Verification</title>
-        <style>
-            body {
-            background-color: #f4f6f8;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            color: #333;
-            }
-            .container {
-            max-width: 600px;
-            margin: 40px auto;
-            background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            padding: 40px 30px;
-            text-align: center;
-            }
-            h1 {
-            color: #4a90e2;
-            margin-bottom: 20px;
-            }
-            p {
-            font-size: 16px;
-            line-height: 1.6;
-            margin-bottom: 30px;
-            }
-            .btn {
-            display: inline-block;
-            background: #4a90e2;
-            color: #fff;
-            text-decoration: none;
-            padding: 14px 28px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 16px;
-            transition: background 0.3s ease;
-            }
-            .btn:hover {
-            background: #3c7dc0;
-            }
-            .footer {
-            margin-top: 30px;
-            font-size: 13px;
-            color: #888;
-            }
-        </style>
-        </head>
-        <body>
-        <div class="container">
-            <h1>Welcome to Chatbook 🎉</h1>
-            <p>Hi there, thank you for signing up!<br>
-            Please verify your email address to get started with Chatbook.</p>
-            <a href="${url}" class="btn">Verify Email</a>
-            <p class="footer">If you didn’t create this account, you can safely ignore this email.</p>
-        </div>
-        </body>
-        </html>
-    `;
+    // const html = `
+    //     <!DOCTYPE html>
+    //     <html lang="en">
+    //     <head>
+    //     <meta charset="UTF-8">
+    //     <title>Email Verification</title>
+    //     <style>
+    //         body {
+    //         background-color: #f4f6f8;
+    //         font-family: Arial, sans-serif;
+    //         margin: 0;
+    //         padding: 0;
+    //         color: #333;
+    //         }
+    //         .container {
+    //         max-width: 600px;
+    //         margin: 40px auto;
+    //         background: #ffffff;
+    //         border-radius: 12px;
+    //         box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    //         padding: 40px 30px;
+    //         text-align: center;
+    //         }
+    //         h1 {
+    //         color: #4a90e2;
+    //         margin-bottom: 20px;
+    //         }
+    //         p {
+    //         font-size: 16px;
+    //         line-height: 1.6;
+    //         margin-bottom: 30px;
+    //         }
+    //         .btn {
+    //         display: inline-block;
+    //         background: #4a90e2;
+    //         color: #fff;
+    //         text-decoration: none;
+    //         padding: 14px 28px;
+    //         border-radius: 8px;
+    //         font-weight: bold;
+    //         font-size: 16px;
+    //         transition: background 0.3s ease;
+    //         }
+    //         .btn:hover {
+    //         background: #3c7dc0;
+    //         }
+    //         .footer {
+    //         margin-top: 30px;
+    //         font-size: 13px;
+    //         color: #888;
+    //         }
+    //     </style>
+    //     </head>
+    //     <body>
+    //     <div class="container">
+    //         <h1>Welcome to Chatbook 🎉</h1>
+    //         <p>Hi there, thank you for signing up!<br>
+    //         Please verify your email address to get started with Chatbook.</p>
+    //         <a href="${url}" class="btn">Verify Email</a>
+    //         <p class="footer">If you didn’t create this account, you can safely ignore this email.</p>
+    //     </div>
+    //     </body>
+    //     </html>
+    // `;
 
-    sendEmail(email, "Welcome to Chatbook", html);
+    // sendEmail(email, "Welcome to Chatbook", html);
 
     res.status(201).json({
         status: "success",
@@ -136,9 +136,9 @@ const login = catchAsync(async (req, res, next) => {
         return next(new AppError("User email or password is incorrect!", 404))
     }
 
-    if(!user.isVerified) {
-        return next(new AppError("user is not verified! please verify your email", 401));
-    }
+    // if(!user.isVerified) {
+    //     return next(new AppError("user is not verified! please verify your email", 401));
+    // }
 
     // 3) ვამოწმბეთ ჰეშირებულ პაროლსა და შემოტანილ პაროლს უდრის თუ არა ერმანეთს
     const isCorrect = await user.comparePassword(password, user.password);

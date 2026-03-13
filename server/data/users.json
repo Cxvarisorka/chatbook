@@ -1,0 +1,74 @@
+[
+  {
+    "name": "Alice",
+    "numbers": [12, 45, 7, 30],
+    "orders": [
+      { "product": "Laptop", "price": 1200, "status": "paid" },
+      { "product": "Mouse", "price": 25, "status": "pending" }
+    ]
+  },
+  {
+    "name": "Bob",
+    "numbers": [5, 18, 22, 40],
+    "orders": [
+      { "product": "Keyboard", "price": 80, "status": "paid" },
+      { "product": "Monitor", "price": 300, "status": "paid" }
+    ]
+  },
+  {
+    "name": "Charlie",
+    "numbers": [100, 90, 80],
+    "orders": [
+      { "product": "Phone", "price": 900, "status": "pending" }
+    ]
+  },
+  {
+    "name": "Diana",
+    "numbers": [3, 6, 9, 12],
+    "orders": [
+      { "product": "Tablet", "price": 400, "status": "paid" },
+      { "product": "Headphones", "price": 150, "status": "pending" }
+    ]
+  },
+  {
+    "name": "Ethan",
+    "numbers": [14, 27, 33, 50],
+    "orders": [
+      { "product": "Camera", "price": 700, "status": "paid" }
+    ]
+  },
+  {
+    "name": "Fiona",
+    "numbers": [1, 2, 3, 4, 5],
+    "orders": []
+  },
+  {
+    "name": "George",
+    "numbers": [200, 150, 175],
+    "orders": [
+      { "product": "Drone", "price": 1100, "status": "pending" }
+    ]
+  },
+  {
+    "name": "Hannah",
+    "numbers": [9, 19, 29, 39],
+    "orders": [
+      { "product": "Smartwatch", "price": 250, "status": "paid" },
+      { "product": "Case", "price": 20, "status": "paid" }
+    ]
+  },
+  {
+    "name": "Ivan",
+    "numbers": [0, 10, 20, 30],
+    "orders": [
+      { "product": "Microphone", "price": 180, "status": "pending" }
+    ]
+  },
+  {
+    "name": "Julia",
+    "numbers": [7, 14, 21, 28],
+    "orders": [
+      { "product": "Chair", "price": 220, "status": "paid" }
+    ]
+  }
+]

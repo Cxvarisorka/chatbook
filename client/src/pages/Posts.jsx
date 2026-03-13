@@ -66,6 +66,7 @@ const Posts = ({ userId }) => {
                         <>
                             <h3>{post.title}</h3>
                             <p>Content: {post.content}</p>
+                            <img width={300} src={import.meta.env.VITE_SERVER_URL + `/${post.postImage}`} style={{border: '2px solid black'}} /><br />
 
                             {user._id === userId && (
                                 <>
