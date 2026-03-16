@@ -1,12 +1,14 @@
 import { View, Text, Image, StyleSheet, Button } from "react-native";
 import { useAuth } from "../context/AuthContext";
 import { usePosts } from "../context/PostContext";
+import { useNavigation } from "@react-navigation/native";
 
 const API_URL = 'http://192.168.100.3:3000';
 
 const PostsList = ({ posts }) => {
     const { user } = useAuth();
     const { deletePost } = usePosts();
+    const navigation = useNavigation();
 
     if (!posts || posts.length === 0) {
         return (
@@ -16,10 +18,18 @@ const PostsList = ({ posts }) => {
         );
     }
 
+
+    const handleClick = (userId) => {
+        navigation.navigate('profile', {userId})
+    }
+
     return (
         <View>
             {posts.map((item) => (
                 <View key={item._id} style={styles.postCard}>
+                    <View>
+                        <Text onPress={() => handleClick(item.userId)} style={styles.fullname}>{user._id == item.userId ? 'Created By You' : item.fullname}</Text>
+                    </View>
                     <Text style={styles.postTitle}>{item.title}</Text>
                     <Text style={styles.postContent}>{item.content}</Text>
                     {item.tags && item.tags.length > 0 && (
@@ -65,8 +75,14 @@ const styles = StyleSheet.create({
         shadowRadius: 6,
         elevation: 3,
     },
-    postTitle: {
+    fullname: {
         fontSize: 16,
+        fontWeight: '600',
+        color: '#2962ff',
+        marginBottom: 6,
+    },
+    postTitle: {
+        fontSize: 15,
         fontWeight: '600',
         color: '#1a1a1a',
         marginBottom: 6,

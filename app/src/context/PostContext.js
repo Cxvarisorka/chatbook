@@ -18,11 +18,16 @@ const PostProvider = ({ children }) => {
             const res = await fetch(`${API_URL}/posts${userId ? `?userId=${userId}` : ''}`, {
                 credentials: 'include'
             });
-
-            const result = await res.json();
+            const contentType = res.headers.get('content-type') || '';
+            const isJsonResponse = contentType.includes('application/json');
+            const result = isJsonResponse ? await res.json() : null;
 
             if(!res.ok) {
-                throw new Error(result.message);
+                throw new Error(result?.message || 'Failed to load posts');
+            }
+
+            if (!isJsonResponse) {
+                throw new Error('Server returned an invalid posts response');
             }
 
             setPosts(result.data.posts);
@@ -52,8 +57,13 @@ const PostProvider = ({ children }) => {
     }
 
     useEffect(() => {
+        if (!user) {
+            setPosts([]);
+            return;
+        }
+
         getPosts();
-    }, []);
+    }, [user]);
 
     const addPost = async (title, content, file, tags = []) => {
             setLoading(true);

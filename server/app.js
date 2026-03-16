@@ -19,6 +19,9 @@ const rateLimit = require('express-rate-limit');
 const postRouter = require('./router/post.router');
 const globalErrorHandler = require('./controllers/error.controllers');
 const authRouter = require('./router/auth.router');
+const userRouter = require('./router/user.router');
+const commentRouter = require('./router/comment.router');
+const friendRequestRouter = require('./router/friendRequest.router');
 
 dotenv.config();
 
@@ -32,7 +35,12 @@ app.use(cors({
 app.use(rateLimit({
     windowMs: 60 * 60 * 1000,
     max: 100,
-    message: 'Too many requests from this IP, please try again after an hour'
+    handler: (req, res) => {
+        res.status(429).json({
+            status: 'fail',
+            message: 'Too many requests from this IP, please try again after an hour'
+        });
+    }
 }));
 // app.use(helmet());
 // app.use(mongoSanitizer());
@@ -58,6 +66,10 @@ if (process.env.NODE_ENV === 'dev') {
 // Using routers
 app.use('/api/posts', postRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/users', userRouter);
+app.use('/api/friend-request', friendRequestRouter);
+app.use('/api/comments', commentRouter);
+
 
 // next with value you mean calling error handler
 // Error handler middleware

@@ -4,11 +4,15 @@ import {
     Button
 } from "react-native";
 import { useAuth } from "../context/AuthContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import { usePosts } from "../context/PostContext";
 import PostsList from "../components/PostsList";
+import { useNavigation } from "@react-navigation/native";
+import { useUser } from "../context/UserContext";
 
+
+const API_URL = 'http://192.168.100.3:3000/api';
 
 function SelectImage({ file, setFile }) {
     const pickImage = async () => {
@@ -56,9 +60,33 @@ function SelectImage({ file, setFile }) {
     );
 }
 
-const ProfileScreen = () => {
+const ProfileScreen = ({ route }) => {
     const { user, logout } = useAuth();
     const { addPost, loading, posts } = usePosts();
+    const {
+        getUserProfile,
+        sendFriendRequest,
+        cancelFriendRequest,
+        friendRequests,
+        sentFriendRequests
+    } = useUser();
+    const navigation = useNavigation();
+    const userId = route.params?.userId;
+
+    const [currentUser, setCurrentUser] = useState(user);
+
+    useEffect(() => {
+        if (!user) return;
+
+        if (!userId || userId === user._id) {
+            setCurrentUser(user);
+            return;
+        }
+
+        getUserProfile(userId, setCurrentUser, user)
+
+    }, [userId, user]);
+
 
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
@@ -80,67 +108,144 @@ const ProfileScreen = () => {
         setTags('');
     };
 
+    const myProfile = () => {
+        navigation.setParams({ userId: undefined });
+        setCurrentUser(user);
+    };
+
+    if (!currentUser) {
+        return null;
+    }
+
+    const isOwnProfile = user?._id === currentUser?._id;
+    const hasIncomingFriendRequest = (friendRequests || []).some(
+        (request) => request.from?._id === currentUser?._id
+    );
+    const hasSentFriendRequest = (sentFriendRequests || []).some(
+        (request) => request.to?._id === currentUser?._id
+    );
+
+    const handleAcceptFriendRequest = () => {
+        Alert.alert('Coming soon', 'Accept friend request is not implemented yet.');
+    };
+
+    const handleRejectFriendRequest = () => {
+        Alert.alert('Coming soon', 'Reject friend request is not implemented yet.');
+    };
+
+    const handleCancelFriendRequest = async () => {
+        await cancelFriendRequest(currentUser._id);
+    };
+
     return (
         <ScrollView style={styles.screen} contentContainerStyle={styles.screenContent}>
             {/* Profile Section */}
             <View style={styles.profileCard}>
                 <View style={styles.avatarCircle}>
                     <Text style={styles.avatarText}>
-                        {user?.fullname?.charAt(0)?.toUpperCase() || '?'}
+                        {currentUser?.fullname?.charAt(0)?.toUpperCase() || '?'}
                     </Text>
                 </View>
-                <Text style={styles.fullname}>{user?.fullname}</Text>
-                <Text style={styles.email}>{user?.email}</Text>
-                <Button title="Logout" onPress={logout}/>
+                <Text style={styles.fullname}>{currentUser?.fullname}</Text>
+                <Text style={styles.email}>{currentUser?.email}</Text>
+                {isOwnProfile ? (
+                    <Button title="Logout" onPress={logout} />
+                ) : hasIncomingFriendRequest ? (
+                    <View style={styles.profileActions}>
+                        <TouchableOpacity style={styles.secondaryAction} onPress={myProfile}>
+                            <Text style={styles.secondaryActionText}>My Profile</Text>
+                        </TouchableOpacity>
+
+                        <View style={styles.friendRequestActionRow}>
+                            <TouchableOpacity
+                                style={[styles.requestActionButton, styles.acceptButton]}
+                                onPress={handleAcceptFriendRequest}
+                            >
+                                <Text style={styles.requestActionText}>Accept</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={[styles.requestActionButton, styles.rejectButton]}
+                                onPress={handleRejectFriendRequest}
+                            >
+                                <Text style={styles.requestActionText}>Reject</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                ) : (
+                    <View style={styles.profileActions}>
+                        <TouchableOpacity style={styles.secondaryAction} onPress={myProfile}>
+                            <Text style={styles.secondaryActionText}>My Profile</Text>
+                        </TouchableOpacity>
+
+                        {hasSentFriendRequest ? (
+                            <TouchableOpacity
+                                style={styles.cancelAction}
+                                onPress={handleCancelFriendRequest}
+                            >
+                                <Text style={styles.cancelActionText}>Cancel Friend Request</Text>
+                            </TouchableOpacity>
+                        ) : (
+                            <TouchableOpacity
+                                style={styles.primaryAction}
+                                onPress={() => sendFriendRequest(currentUser._id)}
+                            >
+                                <Text style={styles.primaryActionText}>Send Friend Request</Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
+                )}
             </View>
 
             {/* New Post Section */}
-            <View style={styles.postCard}>
-                <Text style={styles.sectionTitle}>Create New Post</Text>
+            {isOwnProfile && (
+                <View style={styles.postCard}>
+                    <Text style={styles.sectionTitle}>Create New Post</Text>
 
-                <TextInput
-                    style={styles.input}
-                    placeholder="Title"
-                    placeholderTextColor="#999"
-                    value={title}
-                    onChangeText={setTitle}
-                />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Title"
+                        placeholderTextColor="#999"
+                        value={title}
+                        onChangeText={setTitle}
+                    />
 
-                <TextInput
-                    style={[styles.input, styles.contentInput]}
-                    placeholder="What's on your mind?"
-                    placeholderTextColor="#999"
-                    value={content}
-                    onChangeText={setContent}
-                    multiline
-                    textAlignVertical="top"
-                />
+                    <TextInput
+                        style={[styles.input, styles.contentInput]}
+                        placeholder="What's on your mind?"
+                        placeholderTextColor="#999"
+                        value={content}
+                        onChangeText={setContent}
+                        multiline
+                        textAlignVertical="top"
+                    />
 
-                <TextInput
-                    style={styles.input}
-                    placeholder="Tags (comma separated)"
-                    placeholderTextColor="#999"
-                    value={tags}
-                    onChangeText={setTags}
-                />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Tags (comma separated)"
+                        placeholderTextColor="#999"
+                        value={tags}
+                        onChangeText={setTags}
+                    />
 
-                <SelectImage file={file} setFile={setFile} />
+                    <SelectImage file={file} setFile={setFile} />
 
-                <TouchableOpacity
-                    style={[styles.submitButton, loading && styles.submitButtonDisabled]}
-                    onPress={handleCreatePost}
-                    disabled={loading}
-                >
-                    {loading ? (
-                        <ActivityIndicator color="#fff" />
-                    ) : (
-                        <Text style={styles.submitButtonText}>Post</Text>
-                    )}
-                </TouchableOpacity>
-            </View>
+                    <TouchableOpacity
+                        style={[styles.submitButton, loading && styles.submitButtonDisabled]}
+                        onPress={handleCreatePost}
+                        disabled={loading}
+                    >
+                        {loading ? (
+                            <ActivityIndicator color="#fff" />
+                        ) : (
+                            <Text style={styles.submitButtonText}>Post</Text>
+                        )}
+                    </TouchableOpacity>
+                </View>
+            )}
 
             {/* User Posts Section */}
-            <PostsList posts={posts.filter(post => post.userId == user._id)} />
+            <PostsList posts={posts.filter(post => post.userId == currentUser._id)} />
         </ScrollView>
     );
 };
@@ -191,6 +296,68 @@ const styles = StyleSheet.create({
     email: {
         fontSize: 14,
         color: '#666',
+    },
+    profileActions: {
+        width: '100%',
+        marginTop: 16,
+        gap: 10,
+    },
+    secondaryAction: {
+        width: '100%',
+        borderRadius: 10,
+        paddingVertical: 12,
+        alignItems: 'center',
+        backgroundColor: '#eef2f6',
+    },
+    secondaryActionText: {
+        color: '#334155',
+        fontSize: 15,
+        fontWeight: '600',
+    },
+    primaryAction: {
+        width: '100%',
+        borderRadius: 10,
+        paddingVertical: 12,
+        alignItems: 'center',
+        backgroundColor: '#007AFF',
+    },
+    primaryActionText: {
+        color: '#fff',
+        fontSize: 15,
+        fontWeight: '600',
+    },
+    cancelAction: {
+        width: '100%',
+        borderRadius: 10,
+        paddingVertical: 12,
+        alignItems: 'center',
+        backgroundColor: '#fee2e2',
+    },
+    cancelActionText: {
+        color: '#b42318',
+        fontSize: 15,
+        fontWeight: '700',
+    },
+    friendRequestActionRow: {
+        flexDirection: 'row',
+        gap: 10,
+    },
+    requestActionButton: {
+        flex: 1,
+        borderRadius: 10,
+        paddingVertical: 12,
+        alignItems: 'center',
+    },
+    acceptButton: {
+        backgroundColor: '#1f9d55',
+    },
+    rejectButton: {
+        backgroundColor: '#e11d48',
+    },
+    requestActionText: {
+        color: '#fff',
+        fontSize: 15,
+        fontWeight: '700',
     },
 
     // Post card

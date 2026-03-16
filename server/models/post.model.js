@@ -32,19 +32,12 @@ const postSchema = new mongoose.Schema(
             type: Number,
             default: 0
         },
-        // comments: [
-        //     {
-        //         content: {
-        //             type: String,
-        //             required: [true, 'Comment content is required']
-        //         },
-
-        //         author: {
-        //             type: String,
-        //             required: [true, 'Author is required']
-        //         }
-        //     }
-        // ],
+        comments: [
+            {
+                type: mongoose.Types.ObjectId,
+                ref: 'Comment' 
+            }
+        ],
         tags: [{
             type: String
         }]

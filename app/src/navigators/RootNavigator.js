@@ -5,6 +5,8 @@ import SignupScreen from "../screens/SignupScreen";
 import { useAuth } from "../context/AuthContext";
 import ProfileScreen from "../screens/ProfileScreen";
 import FeedScreen from "../screens/FeedScreen";
+import UsersScreen from "../screens/UsersScreen";
+
 
 const Tab = createBottomTabNavigator();
 
@@ -24,6 +26,7 @@ const RootNavigator = () => {
                     <>
                         <Tab.Screen name="feed" component={FeedScreen}/>
                         <Tab.Screen name="profile" component={ProfileScreen} />
+                        <Tab.Screen name="users" component={UsersScreen} />
                     </>
                 )
             }
