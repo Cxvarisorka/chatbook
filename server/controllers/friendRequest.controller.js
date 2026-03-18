@@ -89,7 +89,8 @@ const acceptFriendRequest = catchAsync(async (req, res, next) => {
         return next(new AppError("Friend request dont exsist!", 404));
     }
 
-    if(friendRequest.to != req.user._id) {
+
+    if(friendRequest.to != req.user._id.toString()) {
         return next(new AppError("You dont have permission to accept this request!", 404));
     }
 
@@ -106,12 +107,74 @@ const acceptFriendRequest = catchAsync(async (req, res, next) => {
         data: {
             friendship
         }
-    })
+    });
+});
+
+const rejectFriendRequest = catchAsync(async (req, res, next) => {
+    const { requestId } = req.params;
+
+    const friendRequest = await FriendRequest.findById(requestId);
+
+    if(!friendRequest) {
+        return next(new AppError("Friend request dont exsist!", 404));
+    }
+
+    if(friendRequest.to != req.user._id.toString()) {
+        return next(new AppError("You dont have permission to accept this request!", 404));
+    }
+
+    await FriendRequest.findByIdAndDelete(requestId);
+
+    res.status(200).json({
+        status: 'success',
+        message: 'Friend request rejected!'
+    });
+});
+
+const getFriendships = catchAsync(async (req, res) => {
+    const friendships = await Friendship.find({
+        $or: [
+            { user1: req.user._id },
+            { user2: req.user._id }
+        ]
+    });
+
+    res.status(200).json({
+        status: 'success',
+        message: 'Succesfully returned friendships!',
+        data: {
+            friendships
+        }
+    });
+});
+
+const removeFriend = catchAsync(async (req, res) => {
+    const { userId } = req.params;
+
+    const friendship = await Friendship.findOneAndDelete({
+        $or: [
+            {user1: req.user._id, user2: userId},
+            {user1: userId, user2: req.user._id}
+        ]
+    });
+
+    if(!friendship) {
+        return next(new AppError("Friendship dont exsist!", 400));
+    }
+
+    res.status(200).json({
+        status: "success",
+        message: "Friend deleted succesfully"
+    });
 });
 
 module.exports = {
     createFriendRequest,
     getFriendRequests,
     getSentFriendRequests,
-    cancelFriendRequest
+    cancelFriendRequest,
+    acceptFriendRequest,
+    getFriendships,
+    removeFriend,
+    rejectFriendRequest
 };

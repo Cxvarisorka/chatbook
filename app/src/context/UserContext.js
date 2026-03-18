@@ -12,6 +12,7 @@ export const UserProvider = ({ children }) => {
     const [users, setUsers] = useState(null);
     const [friendRequests, setFriendRequests] = useState([]);
     const [sentFriendRequests, setSentFriendRequests] = useState([]);
+    const [friends, setFriends] = useState([]);
 
     const navigation = useNavigation();
 
@@ -128,10 +129,72 @@ export const UserProvider = ({ children }) => {
         }
     };
 
+    const acceptFriendRequest = async (requestId) => {
+        try {
+            const res = await fetch(`${API_URL}/friend-request/accept/${requestId}`, {
+                credentials: 'include',
+                method: 'POST'
+            });
+
+            const result = await res.json();
+
+            if(!res.ok) {
+                throw new Error(result.message);
+            }
+
+            Alert.alert(result.message);
+            setFriends(prev => [...prev, result.data.friendship]);
+        } catch(err) {
+            Alert.alert(err.message);
+            return false;
+        }
+    };
+
+    const getFriendships = async () => {
+          try {
+            const res = await fetch(`${API_URL}/friend-request/friendships`, {
+                credentials: 'include',
+                method: 'GET'
+            });
+
+            const result = await res.json();
+
+            if(!res.ok) {
+                throw new Error(result.message);
+            }
+
+            setFriends(result.data.friendships);
+        } catch(err) {
+            Alert.alert(err.message);
+            return false;
+        }
+    }
+
+    const removeFriend = async (userId) => {
+        try {
+            const res = await fetch(`${API_URL}/friend-request/friendships/${userId}`, {
+                credentials: 'include',
+                method: 'DELETE'
+            });
+
+            const result = await res.json();
+
+            if (!res.ok) {
+                throw new Error(result.message);
+            }
+
+            Alert.alert(result.message);
+            setFriends(prev => prev.filter(f => f.user1 !== userId && f.user2 !== userId));
+        } catch (err) {
+            Alert.alert(err.message);
+        }
+    };
+
     useEffect(() => {
         getUsers();
         getFriendRequests();
         getSentFriendRequests();
+        getFriendships();
     }, []);
 
     
@@ -144,7 +207,10 @@ export const UserProvider = ({ children }) => {
                 sendFriendRequest,
                 cancelFriendRequest,
                 friendRequests,
-                sentFriendRequests
+                sentFriendRequests,
+                acceptFriendRequest,
+                friends,
+                removeFriend
             }}
         >
             { children }

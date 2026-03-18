@@ -32,16 +32,16 @@ app.use(cors({
     credentials: true
 }));
 
-app.use(rateLimit({
-    windowMs: 60 * 60 * 1000,
-    max: 100,
-    handler: (req, res) => {
-        res.status(429).json({
-            status: 'fail',
-            message: 'Too many requests from this IP, please try again after an hour'
-        });
-    }
-}));
+// app.use(rateLimit({
+//     windowMs: 60 * 60 * 1000,
+//     max: 100,
+//     handler: (req, res) => {
+//         res.status(429).json({
+//             status: 'fail',
+//             message: 'Too many requests from this IP, please try again after an hour'
+//         });
+//     }
+// }));
 // app.use(helmet());
 // app.use(mongoSanitizer());
 // app.use(xss());

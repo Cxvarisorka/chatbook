@@ -68,7 +68,10 @@ const ProfileScreen = ({ route }) => {
         sendFriendRequest,
         cancelFriendRequest,
         friendRequests,
-        sentFriendRequests
+        sentFriendRequests,
+        acceptFriendRequest,
+        friends,
+        removeFriend
     } = useUser();
     const navigation = useNavigation();
     const userId = route.params?.userId;
@@ -118,12 +121,17 @@ const ProfileScreen = ({ route }) => {
     }
 
     const isOwnProfile = user?._id === currentUser?._id;
-    const hasIncomingFriendRequest = (friendRequests || []).some(
+    const hasIncomingFriendRequest = (friendRequests || []).find(
         (request) => request.from?._id === currentUser?._id
     );
     const hasSentFriendRequest = (sentFriendRequests || []).some(
         (request) => request.to?._id === currentUser?._id
     );
+    
+
+    const isFriend = (user?._id !== currentUser?._id) && friends.some(f => currentUser._id == f?.user1 || currentUser._id == f?.user2);
+
+    console.log(isFriend)
 
     const handleAcceptFriendRequest = () => {
         Alert.alert('Coming soon', 'Accept friend request is not implemented yet.');
@@ -150,6 +158,30 @@ const ProfileScreen = ({ route }) => {
                 <Text style={styles.email}>{currentUser?.email}</Text>
                 {isOwnProfile ? (
                     <Button title="Logout" onPress={logout} />
+                ) : isFriend ? (
+                    <View style={styles.profileActions}>
+                        <View style={styles.friendBadge}>
+                            <Text style={styles.friendBadgeText}>Friends</Text>
+                        </View>
+
+                        <TouchableOpacity style={styles.secondaryAction} onPress={myProfile}>
+                            <Text style={styles.secondaryActionText}>My Profile</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={styles.cancelAction}
+                            onPress={() => Alert.alert(
+                                'Remove Friend',
+                                `Are you sure you want to remove ${currentUser?.fullname} from your friends?`,
+                                [
+                                    { text: 'Cancel', style: 'cancel' },
+                                    { text: 'Remove', style: 'destructive', onPress: () => removeFriend(currentUser._id) }
+                                ]
+                            )}
+                        >
+                            <Text style={styles.cancelActionText}>Remove Friend</Text>
+                        </TouchableOpacity>
+                    </View>
                 ) : hasIncomingFriendRequest ? (
                     <View style={styles.profileActions}>
                         <TouchableOpacity style={styles.secondaryAction} onPress={myProfile}>
@@ -159,7 +191,7 @@ const ProfileScreen = ({ route }) => {
                         <View style={styles.friendRequestActionRow}>
                             <TouchableOpacity
                                 style={[styles.requestActionButton, styles.acceptButton]}
-                                onPress={handleAcceptFriendRequest}
+                                onPress={() => acceptFriendRequest(hasIncomingFriendRequest._id)}
                             >
                                 <Text style={styles.requestActionText}>Accept</Text>
                             </TouchableOpacity>
@@ -296,6 +328,19 @@ const styles = StyleSheet.create({
     email: {
         fontSize: 14,
         color: '#666',
+    },
+    friendBadge: {
+        backgroundColor: '#dcfce7',
+        borderRadius: 20,
+        paddingVertical: 6,
+        paddingHorizontal: 16,
+        alignSelf: 'center',
+        marginTop: 8,
+    },
+    friendBadgeText: {
+        color: '#15803d',
+        fontSize: 14,
+        fontWeight: '700',
     },
     profileActions: {
         width: '100%',
