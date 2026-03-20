@@ -164,6 +164,16 @@ const ProfileScreen = ({ route }) => {
                             <Text style={styles.friendBadgeText}>Friends</Text>
                         </View>
 
+                        <TouchableOpacity
+                            style={styles.primaryAction}
+                            onPress={() => navigation.navigate('messages', {
+                                screen: 'chat',
+                                params: { friendId: currentUser._id, friendName: currentUser.fullname }
+                            })}
+                        >
+                            <Text style={styles.primaryActionText}>Message</Text>
+                        </TouchableOpacity>
+
                         <TouchableOpacity style={styles.secondaryAction} onPress={myProfile}>
                             <Text style={styles.secondaryActionText}>My Profile</Text>
                         </TouchableOpacity>
