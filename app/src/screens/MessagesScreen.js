@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import {
     View, Text, TouchableOpacity, StyleSheet, FlatList
 } from "react-native";
@@ -8,44 +7,42 @@ import { useSocket } from "../context/SocketContext";
 
 const MessagesScreen = ({ navigation }) => {
     const { user } = useAuth();
-    const { friends, users } = useUser();
-    const { conversations } = useSocket();
+    const { users } = useUser();
+    const { groups, conversations } = useSocket();
 
-    const getFriend = (friendship) => {
-        const friendId = friendship.user1 === user._id ? friendship.user2 : friendship.user1;
+    const getFriend = (group) => {
+        const friendId = group.members.find(id => id !== user._id);
         const friendUser = (users || []).find(u => u._id === friendId);
         return { id: friendId, name: friendUser?.fullname || 'Unknown' };
     };
 
-    const getLastMessage = (friendId) => {
-        const msgs = conversations[friendId];
+    const getLastMessage = (groupId) => {
+        const msgs = conversations[groupId];
         if (!msgs || msgs.length === 0) return null;
         return msgs[msgs.length - 1];
     };
 
-    const sortedFriends = [...(friends || [])].sort((a, b) => {
-        const friendA = getFriend(a);
-        const friendB = getFriend(b);
-        const lastA = getLastMessage(friendA.id);
-        const lastB = getLastMessage(friendB.id);
+    const sortedGroups = [...(groups || [])].sort((a, b) => {
+        const lastA = getLastMessage(a._id);
+        const lastB = getLastMessage(b._id);
         if (!lastA && !lastB) return 0;
         if (!lastA) return 1;
         if (!lastB) return -1;
         return new Date(lastB.createdAt) - new Date(lastA.createdAt);
     });
 
-    const openChat = (friendId, friendName) => {
-        navigation.navigate('chat', { friendId, friendName });
+    const openChat = (groupId, friendName) => {
+        navigation.navigate('chat', { groupId, friendName });
     };
 
     const renderConversation = ({ item }) => {
         const friend = getFriend(item);
-        const lastMsg = getLastMessage(friend.id);
+        const lastMsg = getLastMessage(item._id);
 
         return (
             <TouchableOpacity
                 style={styles.conversationItem}
-                onPress={() => openChat(friend.id, friend.name)}
+                onPress={() => openChat(item._id, friend.name)}
             >
                 <View style={styles.avatar}>
                     <Text style={styles.avatarText}>
@@ -63,7 +60,7 @@ const MessagesScreen = ({ navigation }) => {
                     </View>
                     <Text style={styles.lastMessage} numberOfLines={1}>
                         {lastMsg
-                            ? (lastMsg.from === user._id ? `You: ${lastMsg.message}` : lastMsg.message)
+                            ? (lastMsg.senderId === user._id ? `You: ${lastMsg.text}` : lastMsg.text)
                             : 'Tap to start chatting'
                         }
                     </Text>
@@ -75,7 +72,7 @@ const MessagesScreen = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <FlatList
-                data={sortedFriends}
+                data={sortedGroups}
                 keyExtractor={(item) => item._id}
                 renderItem={renderConversation}
                 contentContainerStyle={styles.listContent}

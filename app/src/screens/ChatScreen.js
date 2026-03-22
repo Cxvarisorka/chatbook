@@ -7,19 +7,23 @@ import { useAuth } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
 
 const ChatScreen = ({ route }) => {
-    const { friendId, friendName } = route.params;
+    const { groupId, friendName } = route.params;
     const { user } = useAuth();
-    const { sendMessage, conversations } = useSocket();
+    const { sendMessage, conversations, fetchMessages } = useSocket();
     const [text, setText] = useState('');
     const flatListRef = useRef(null);
 
-    const messages = conversations[friendId] || [];
+    const messages = conversations[groupId] || [];
+
+    useEffect(() => {
+        fetchMessages(groupId);
+    }, [groupId]);
 
     const handleSend = () => {
         const trimmed = text.trim();
         if (!trimmed) return;
 
-        sendMessage(friendId, trimmed);
+        sendMessage(groupId, trimmed);
         setText('');
     };
 
@@ -30,11 +34,11 @@ const ChatScreen = ({ route }) => {
     }, [messages.length]);
 
     const renderMessage = ({ item }) => {
-        const isOwn = item.from === user._id;
+        const isOwn = item.senderId === user._id;
         return (
             <View style={[styles.messageBubble, isOwn ? styles.ownBubble : styles.otherBubble]}>
                 <Text style={[styles.messageText, isOwn ? styles.ownText : styles.otherText]}>
-                    {item.message}
+                    {item.text}
                 </Text>
                 <Text style={[styles.timeText, isOwn ? styles.ownTime : styles.otherTime]}>
                     {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -61,7 +65,7 @@ const ChatScreen = ({ route }) => {
             <FlatList
                 ref={flatListRef}
                 data={messages}
-                keyExtractor={(_, index) => index.toString()}
+                keyExtractor={(item) => item._id}
                 renderItem={renderMessage}
                 contentContainerStyle={styles.messagesList}
                 ListEmptyComponent={

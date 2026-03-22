@@ -26,6 +26,9 @@ const authRouter = require('./router/auth.router');
 const userRouter = require('./router/user.router');
 const commentRouter = require('./router/comment.router');
 const friendRequestRouter = require('./router/friendRequest.router');
+const Group = require('./models/group.model');
+const Message = require('./models/message.model');
+const messageRouter = require('./router/message.router');
 
 dotenv.config();
 
@@ -36,6 +39,8 @@ const io = new Server(server, {
         origin: "*",
     }
 });
+
+app.set('io', io);
 
 app.use(cors({
     origin: "*",
@@ -52,32 +57,33 @@ io.use((socket, next) => {
 });
 
 // OnlineUsers which stores all connected users (online)
-const onlineUsers = new Map();
+
+// Group model - contains users ids which is connected with meessages
+// Message model - 
 
 io.on('connection', (socket) => {
-    // Storing the current user which connected to socket in map
-    onlineUsers.set(socket.user._id, socket.id);
-
     console.log('New user connected', socket.id);
 
     // Listener for message
-    socket.on('private-message', ({ to, message }) => {
-        const recipientSocketId = onlineUsers.get(to);
+    socket.on("join-group", async ({groupId, userId}) => {
+        const group = await Group.findById(groupId);
 
-        // Checking if user is online
-        if (recipientSocketId) {
-            // If he is online emit event for that user
-            io.to(recipientSocketId).emit('private-message', {
-                from: socket.user._id,
-                message,
-                createdAt: new Date()
-            });
+        if(!group){
+            return socket.emit("errorMessage", "Group not found");
         }
-        // TODO: also save to DB (step 2)
+
+        const isMember = group.members.some(id => id.toString() == userId.toString());
+
+        if (!isMember) {
+            return socket.emit("errorMessage", "You are not a member of this group");
+        }
+
+        socket.join(`group:${groupId}`);
+        socket.emit('Joined Group', { groupId })
     });
 
     socket.on('disconnect', () => {
-        onlineUsers.delete(socket.user._id);
+        console.log('User disconnected', socket.id);
     });
 })
 
@@ -103,6 +109,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/users', userRouter);
 app.use('/api/friend-request', friendRequestRouter);
 app.use('/api/comments', commentRouter);
+app.use('/api/messages', messageRouter);
 
 
 // next with value you mean calling error handler
@@ -122,4 +129,5 @@ mongoose.connect(process.env.DATABASE_URL)
         console.error('Database connection error:', err);
         process.exit(1);
     });
+
 

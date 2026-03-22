@@ -1,5 +1,6 @@
 const FriendRequest = require("../models/friendRequest.model");
 const Friendship = require("../models/friendship.model");
+const Group = require("../models/group.model");
 const User = require("../models/user.model");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
@@ -98,6 +99,9 @@ const acceptFriendRequest = catchAsync(async (req, res, next) => {
         user1: req.user._id,
         user2: friendRequest.from
     });
+
+    // Create group for the new friendship
+    await Group.create({members: [req.user._id, friendRequest.from]});
 
     await FriendRequest.findByIdAndDelete(requestId);
 
