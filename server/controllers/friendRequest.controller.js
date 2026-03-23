@@ -152,7 +152,7 @@ const getFriendships = catchAsync(async (req, res) => {
     });
 });
 
-const removeFriend = catchAsync(async (req, res) => {
+const removeFriend = catchAsync(async (req, res, next) => {
     const { userId } = req.params;
 
     const friendship = await Friendship.findOneAndDelete({

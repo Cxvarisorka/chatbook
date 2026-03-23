@@ -98,7 +98,7 @@ export const AuthProvider = ({ children }) => {
         } catch(err) {
             console.log(err.message);
         }
-    }
+    };
 
     return (
         <AuthContext.Provider value={{signup, login, logout, user}}>

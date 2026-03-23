@@ -4,7 +4,7 @@ const groupSchema = new mongoose.Schema({
     members: [{
         type: mongoose.Types.ObjectId,
         ref: "Users",
-        require: true
+        required: true
     }],
     lastMessage: {
         type: mongoose.Types.ObjectId,

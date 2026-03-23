@@ -21,8 +21,7 @@ const postSchema = new mongoose.Schema(
             type: String,
             required: [true, 'Title is required'],
             minLength: [3, 'Title must be at least 3 characters'],
-            maxLength: [20, 'Title must be at most 20 characters'],
-            unique: [true, 'Title must be unique']
+            maxLength: [20, 'Title must be at most 20 characters']
         },
         content: {
             type: String,
